@@ -2,6 +2,8 @@
 
 A local GPT-6 Astra drawing studio for AxiDraw. Turn prompts or webcam stills into validated pen strokes, preview the path, export SVG, and optionally plot over USB.
 
+![Astra Draw webcam interface showing an AI Tinkerers Tokyo sketch, stroke playback, and Calibration, Home, and Plot on AxiDraw controls](docs/astra-draw-ui.png)
+
 This repository contains the standalone app, not a hosted service. Run it on the computer connected to the plotter. Your model credentials, photographs, drawings, and calibration are not transferred by cloning or pulling it.
 
 ## Quickstart
