@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="366" viewBox="0 0 440 366" role="img" aria-labelledby="title desc">
+  <title id="title">A4 paper and AxiDraw home position, top view</title>
+  <desc id="desc">The plotter is behind the paper. The pen is at the fully left and back home corner, directly above the paper's upper-left corner. A4 landscape extends 297 millimeters right, positive X, and 210 millimeters toward the viewer, positive Y. Machine outline is schematic.</desc>
+  <rect width="440" height="366" fill="white"/>
+  <g stroke="#596465" stroke-width="2">
+    <rect x="40" y="29" width="24" height="46" rx="3" fill="#dae0df"/>
+    <rect x="376" y="29" width="24" height="46" rx="3" fill="#dae0df"/>
+    <path d="M64 43H376 M64 60H376"/>
+    <rect x="69" y="5" width="10" height="94" fill="#edf0ef"/>
+    <rect x="61" y="34" width="26" height="35" rx="2" fill="#148477"/>
+  </g>
+  <rect x="74" y="105" width="297" height="210" fill="#fafbfb" stroke="#a8b3b1" stroke-width="1.5"/>
+  <g stroke="#148477" stroke-width="1.5" fill="none">
+    <path d="M74 329H371 M74 324v10 M371 324v10 M395 105V315 M390 105h10 M390 315h10"/>
+    <path d="m361 325 10 4-10 4 M391 305l4 10 4-10"/>
+  </g>
+  <g font-family="Arial, sans-serif" fill="#243331" text-anchor="middle">
+    <text x="239" y="23" font-size="18">AxiDraw / BACK</text>
+    <text x="219" y="188" font-size="28">A4</text>
+    <text x="219" y="215" font-size="18">LANDSCAPE</text>
+    <text x="219" y="247" font-size="17">297 x 210 mm</text>
+    <text x="225" y="354" font-size="18">+X right / 297 mm</text>
+    <text transform="translate(424 210) rotate(90)" font-size="18">+Y toward you / 210 mm</text>
+  </g>
+  <g stroke="#c83b25" stroke-width="2" fill="none">
+    <path d="M74 88V99 M65 105H57 M74 111v10 M80 105h11 M81 98l17-13h12"/>
+    <circle cx="74" cy="105" r="6" fill="white"/>
+  </g>
+  <text x="116" y="91" fill="#b62e1c" font-size="18" font-weight="bold" font-family="Arial, sans-serif">PEN / HOME (0,0)</text>
+</svg>

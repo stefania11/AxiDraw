@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Astra Draw | AxiDraw</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script defer src="/app.js"></script>
+  </head>
+  <body>
+    <header class="masthead">
+      <div class="identity">
+        <span class="monogram" aria-hidden="true">A</span>
+        <h1>Astra Draw<span>AxiDraw studio</span></h1>
+      </div>
+      <div class="connection">
+        <span class="status-dot"></span><span id="connection">GPT-6 Astra</span>
+      </div>
+    </header>
+    <main class="workspace">
+      <aside class="sidebar">
+        <form id="composer">
+          <div class="section-label">
+            <span>01 / COMPOSE</span><span class="live-label">LIVE MODEL</span>
+          </div>
+          <fieldset class="segments source-modes" aria-label="Drawing source">
+            <label
+              ><input type="radio" name="source" value="prompt" checked /><span
+                >Prompt</span
+              ></label
+            >
+            <label
+              ><input type="radio" name="source" value="webcam" /><span
+                >Webcam</span
+              ></label
+            >
+          </fieldset>
+          <section id="camera-panel" aria-label="Webcam capture" hidden>
+            <div class="camera-frame">
+              <video
+                id="camera-video"
+                autoplay
+                muted
+                playsinline
+                hidden
+              ></video>
+              <img id="camera-photo" alt="Captured photo for Astra" hidden />
+              <span id="camera-placeholder">Camera off</span>
+            </div>
+            <div class="camera-actions">
+              <button id="camera-toggle" class="secondary-button" type="button">
+                Start camera
+              </button>
+              <button
+                id="camera-capture"
+                class="secondary-button"
+                type="button"
+                disabled
+                hidden
+              >
+                <img src="/icons/camera.svg" alt="" />Take photo
+              </button>
+              <button
+                id="camera-retake"
+                class="secondary-button"
+                type="button"
+                hidden
+              >
+                <img src="/icons/rotate-ccw.svg" alt="" />Retake
+              </button>
+            </div>
+            <p id="camera-status" class="camera-status" role="status">
+              Camera off.
+            </p>
+            <p class="photo-notice">
+              Space captures one frame, sends it to GPT-6 Astra, and plots the
+              resulting drawing. Draw photo generates without auto-plotting.
+            </p>
+          </section>
+          <label id="prompt-label" class="prompt-label" for="prompt"
+            >What goes on the page?</label
+          >
+          <textarea id="prompt" maxlength="1500" rows="5" required>
+A graceful koi curling around a crescent moon. Flowing fins, three ripples, a few tiny stars. Elegant Japanese ink contours, spacious and balanced.</textarea
+          >
+          <div id="preset-row" class="preset-row">
+            <label for="preset">Subject</label
+            ><select id="preset">
+              <option value="koi">Moonlit koi</option>
+              <option value="tokyo">Tokyo at dusk</option>
+              <option value="iris">Mechanical iris</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <fieldset class="segments">
+            <legend>Detail</legend>
+            <label
+              ><input type="radio" name="detail" value="quick" checked /><span
+                >Quick sketch</span
+              ></label
+            ><label
+              ><input type="radio" name="detail" value="detailed" /><span
+                >Fine lines</span
+              ></label
+            >
+          </fieldset>
+          <label id="refine-row" class="refine"
+            ><input id="refine" type="checkbox" disabled /><span
+              >Revise current drawing</span
+            ></label
+          >
+          <button class="draw-button" id="draw" type="submit">
+            <span id="draw-label">Draw with Astra</span>
+            <span aria-hidden="true">↗</span>
+          </button>
+          <p
+            class="run-status"
+            id="run-status"
+            role="status"
+            aria-live="polite"
+          >
+            Ready for a live drawing.
+          </p>
+          <p class="space-shortcut" id="space-shortcut">
+            <kbd>Space</kbd><span>Photo → Astra → AxiDraw</span>
+          </p>
+        </form>
+        <section class="session-section">
+          <div class="section-label">
+            <span>02 / SESSION</span><span id="drawing-count">0 DRAWINGS</span>
+          </div>
+          <div id="gallery" class="gallery"></div>
+        </section>
+        <div class="sidebar-foot">
+          <span class="status-dot"></span
+          ><span id="plot-mode">Simulation only</span
+          ><span>A4 / 297 × 210 mm</span>
+        </div>
+      </aside>
+      <section class="drawing-area" aria-label="Drawing workspace">
+        <div class="canvas-toolbar">
+          <div>
+            <span class="ink-dot"></span>BLACK INK
+            <span class="toolbar-divider">/</span> 0.35 MM
+          </div>
+          <span id="run-label">AWAITING DRAWING</span>
+        </div>
+        <div class="paper-surround">
+          <div class="top-ruler" aria-label="X axis, millimeters">
+            <button
+              id="paper-setup"
+              type="button"
+              title="Show A4 paper and pen placement"
+            >
+              0 / HOME</button
+            ><span>50</span><span>100</span><span>150</span><span>200</span
+            ><span>250</span><span>297 mm</span>
+          </div>
+          <div class="paper" id="paper">
+            <span class="paper-origin" aria-hidden="true"></span>
+            <canvas
+              id="drawing"
+              aria-label="Astra drawing and simulated pen position"
+            ></canvas>
+            <div class="empty-state" id="empty-state">
+              <span class="empty-cross" aria-hidden="true">+</span
+              ><span>A blank page.</span>
+            </div>
+          </div>
+          <div class="paper-bottom">
+            <span id="drawing-title">Untitled</span
+            ><span id="progress-label">0 / 0 STROKES</span>
+          </div>
+        </div>
+        <div class="playback">
+          <div class="playback-actions">
+            <button
+              id="play"
+              class="icon-button"
+              type="button"
+              title="Play or pause pen simulation"
+              aria-label="Play or pause pen simulation"
+              disabled
+            >
+              <img id="play-icon" src="/icons/play.svg" alt="" />
+            </button>
+            <button
+              id="replay"
+              class="icon-button"
+              type="button"
+              title="Replay drawing"
+              aria-label="Replay drawing"
+              disabled
+            >
+              <img src="/icons/rotate-ccw.svg" alt="" />
+            </button>
+            <label class="speed"
+              ><span>Playback</span
+              ><select id="speed" aria-label="Playback speed">
+                <option value="1">1×</option>
+                <option value="4">4×</option>
+                <option value="12" selected>12×</option>
+              </select></label
+            >
+          </div>
+          <label class="travel"
+            ><input type="checkbox" id="travel" />Pen travel</label
+          >
+          <a
+            id="download"
+            class="download disabled"
+            aria-disabled="true"
+            download="astra-drawing.svg"
+            ><img src="/icons/download.svg" alt="" />SVG</a
+          >
+        </div>
+        <div class="scrub-row">
+          <input
+            id="scrub"
+            aria-label="Drawing progress"
+            type="range"
+            min="0"
+            max="1000"
+            value="0"
+            disabled
+          />
+        </div>
+        <div class="metrics">
+          <div><span>GENERATION</span><strong id="latency">--</strong></div>
+          <div><span>STROKES</span><strong id="strokes">--</strong></div>
+          <div><span>INK DISTANCE</span><strong id="distance">--</strong></div>
+          <div>
+            <span>PLOT ESTIMATE</span><strong id="plot-time">--</strong>
+          </div>
+        </div>
+        <section class="plot-controls" aria-label="Physical AxiDraw">
+          <div>
+            <span class="section-label">PHYSICAL AXIDRAW</span>
+            <p id="plot-status" role="status">Checking availability...</p>
+            <p id="plot-serial" hidden></p>
+            <a id="plot-receipt" hidden>Plot receipt</a>
+          </div>
+          <div class="plot-actions">
+            <button id="calibration-open" class="secondary-button" type="button" disabled>
+              <img src="/icons/sliders-horizontal.svg" alt="" />Calibration
+            </button>
+            <button id="plot-home" class="secondary-button" type="button" title="Return to saved Home with the pen raised" disabled>
+              <img src="/icons/house.svg" alt="" />Home
+            </button>
+            <button
+              id="plot-pause"
+              class="secondary-button pause-plot"
+              type="button"
+              hidden
+            >
+              <img src="/icons/pause.svg" alt="" />Pause plot
+            </button>
+            <button
+              id="plot-open"
+              class="secondary-button"
+              type="button"
+              disabled
+            >
+              <img src="/icons/printer.svg" alt="" />Plot on AxiDraw
+            </button>
+          </div>
+        </section>
+        <footer class="drawing-foot">
+          <p id="description">GPT-6 Astra / low reasoning</p>
+          <div id="evidence" hidden>
+            <a id="source-photo-link" hidden>Source photo</a>
+            <a id="raw-link">Raw response</a><a id="metrics-link">Run metrics</a
+            ><a id="preview-link">AxiDraw preview</a>
+          </div>
+        </footer>
+        <p id="warning" class="warning" hidden></p>
+      </section>
+    </main>
+    <dialog id="setup-dialog" aria-labelledby="setup-heading">
+      <h2 id="setup-heading">A4 paper &amp; home position</h2>
+      <figure class="paper-placement">
+        <img
+          src="/paper-setup.svg"
+          alt="Top view: the plotter is behind A4 landscape paper. The home pen tip is directly above the paper's upper-left corner. X extends right 297 mm; Y extends toward you 210 mm."
+          width="440"
+          height="366"
+        />
+        <figcaption>
+          Top view. Red marker = pen tip over the paper corner. Machine outline
+          is schematic.
+        </figcaption>
+      </figure>
+      <ol class="setup-steps">
+        <li>
+          <strong>Release XY motors.</strong> When idle, use Raise pen &amp;
+          release XY in Calibration. Never force a locked carriage.
+        </li>
+        <li>
+          <strong>Home the head.</strong> Gently move the solid carriage block
+          fully left and back, near the Home label and USB port. Do not push the
+          pen slide.
+        </li>
+        <li>
+          <strong>Position the paper.</strong> Place its upper-left corner
+          directly under the raised tip: 297 mm right, 210 mm toward you. Keep
+          the rear rods and cables clear.
+        </li>
+        <li>
+          <strong>Set the pen.</strong> Leave 3-6 mm clearance when raised.
+          Lowered, the tip rests on the paper by its own weight.
+        </li>
+      </ol>
+      <p class="setup-warning">
+        Every plot assumes this corner is (0,0). The machine does not sense
+        Home. Do not start from the center of the paper or from the first
+        stroke.
+      </p>
+      <form method="dialog">
+        <button class="secondary-button" type="submit">Close guide</button>
+      </form>
+    </dialog>
+    <dialog id="plot-dialog" aria-labelledby="plot-heading">
+      <form id="plot-form">
+        <h2 id="plot-heading">Plot on AxiDraw</h2>
+        <p id="plot-drawing-name"></p>
+        <p id="quick-device" class="plot-page"></p>
+        <p id="quick-status" role="status"></p>
+        <div class="quick-check-actions">
+          <button id="quick-check" class="setup-link" type="button">Check again</button>
+          <button id="quick-calibration" class="setup-link" type="button" hidden>Open calibration</button>
+        </div>
+        <label class="plot-confirm quick-confirm">
+          <input id="quick-ready" type="checkbox" disabled />
+          <span id="quick-confirm-label">Power and pen checked, other plotter apps closed, A4 aligned, and workspace clear. The head has not been moved by hand or stalled.</span>
+        </label>
+        <p class="plot-safety">Real machine movement. Keep the physical pause button accessible.</p>
+        <div class="dialog-actions">
+          <button id="quick-cancel" class="secondary-button" type="button">Cancel</button>
+          <button id="plot-start" class="secondary-button primary-plot" type="submit" disabled>
+            <img id="quick-icon" src="/icons/printer.svg" alt="" /><span id="quick-action">Home &amp; start plot</span>
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="calibration-dialog" aria-labelledby="calibration-heading">
+      <form id="calibration-form">
+        <h2 id="calibration-heading">AxiDraw calibration</h2>
+        <p class="plot-page">Device, pen, and Home setup / A4 landscape</p>
+        <button id="plot-setup" class="setup-link" type="button">
+          A4 paper &amp; home placement
+        </button>
+        <fieldset id="plot-settings" class="plot-settings">
+          <label class="wide"
+            >USB device<select id="plot-port" required></select
+          ></label>
+          <label class="wide"
+            >AxiDraw model<select id="plot-model">
+              <option value="1">V2 / V3 / SE-A4</option>
+              <option value="2">V3/A3 / SE-A3</option>
+              <option value="3">V3 XLX</option>
+              <option value="5">SE/A1</option>
+              <option value="6">SE/A2</option>
+            </select></label
+          >
+          <label
+            >Pen-down speed (%)<input
+              id="plot-speed"
+              type="number"
+              min="1"
+              max="50"
+              value="25"
+              required
+          /></label>
+          <label
+            >Pen-up travel speed (%)<input
+              id="plot-travel-speed"
+              type="number"
+              min="1"
+              max="75"
+              value="30"
+              required
+          /></label>
+          <label
+            >Acceleration (%)<input
+              id="plot-accel"
+              type="number"
+              min="1"
+              max="75"
+              value="25"
+              required
+          /></label>
+          <label
+            >Pen-up height (%)<input
+              id="plot-pen-up"
+              type="number"
+              min="0"
+              max="100"
+              value="60"
+              required
+          /></label>
+          <label
+            >Pen-down height (%)<input
+              id="plot-pen-down"
+              type="number"
+              min="0"
+              max="100"
+              value="30"
+              required
+          /></label>
+        </fieldset>
+        <button id="plot-check" class="secondary-button" type="button">
+          Check plotter
+        </button>
+        <p id="plot-check-status" role="status"></p>
+        <details class="plot-diagnostics">
+          <summary>USB diagnostics</summary>
+          <pre id="plot-telemetry" hidden></pre>
+        </details>
+        <label class="plot-confirm"
+          ><input id="plot-ready" type="checkbox" disabled />
+          <span
+            >For pen-contact and movement tests, I verified the power adapter,
+            secured the pen, closed other plotter apps, and cleared the workspace.</span
+          >
+        </label>
+        <p class="plot-safety">
+          This moves the real machine. Software pause is not an emergency stop.
+          Keep access to the plotter's physical pause button. After a collision,
+          power loss, manual movement, or failure, release XY and set Home again.
+        </p>
+        <fieldset class="plot-calibration">
+          <legend>Calibration</legend>
+          <div class="plot-test-actions">
+            <button
+              id="plot-align"
+              class="secondary-button"
+              type="button"
+              disabled
+            >
+              Raise pen &amp; release XY
+            </button>
+            <button
+              id="plot-pen-raise"
+              class="secondary-button"
+              type="button"
+              disabled
+            >
+              Raise pen
+            </button>
+            <button
+              id="plot-pen-cycle"
+              class="secondary-button"
+              type="button"
+              disabled
+            >
+              Pen down / up
+            </button>
+          </div>
+          <label class="plot-confirm">
+            <input id="plot-home-ready" type="checkbox" disabled />
+            <span id="plot-home-label"
+              >The carriage is physically at Home (fully left and back), and A4
+              landscape's upper-left corner is under the tip.</span
+            >
+          </label>
+          <button id="plot-set-home" class="secondary-button" type="button" disabled>
+            Set current position as Home
+          </button>
+          <label class="plot-confirm">
+            <input id="plot-motion-ready" type="checkbox" disabled />
+            <span
+              >The pen physically clears the paper, with 5 mm of free travel in
+              +X and +Y.</span
+            >
+          </label>
+          <button
+            id="plot-motion-test"
+            class="secondary-button"
+            type="button"
+            disabled
+          >
+            5 mm pen-up square
+          </button>
+        </fieldset>
+        <div class="dialog-actions">
+          <button id="plot-cancel" class="secondary-button" type="button">
+            Close calibration
+          </button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

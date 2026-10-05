@@ -1,0 +1,3 @@
+-r requirements.txt
+# Official AxiDraw API/CLI 3.9.6 archive; fail closed if the vendor replaces it.
+https://cdn.evilmadscientist.com/dl/ad/public/AxiDraw_API.zip#sha256=c29ef0792dc8a2006a3a4abcb306e8d7fa5b93f8ce83c0c781eed226d7eeca24
