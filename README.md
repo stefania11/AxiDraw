@@ -1,6 +1,6 @@
-# Astra Draw
+# AxiDraw
 
-A local GPT-6 Astra drawing studio for AxiDraw. Turn prompts or webcam stills into validated pen strokes, preview the path, export SVG, and optionally plot over USB.
+A local drawing studio for AxiDraw. Turn prompts or webcam stills into validated pen strokes, preview the path, export SVG, and optionally plot over USB.
 
 ![Astra Draw webcam interface showing an AI Tinkerers Tokyo sketch, stroke playback, and Calibration, Home, and Plot on AxiDraw controls](docs/astra-draw-ui.png)
 
